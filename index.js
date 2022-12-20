@@ -1,6 +1,9 @@
 const http = require('http');
 const fs = require('fs/promises');
 
+
+const userDataBase = [];
+
 const requestHandler = (request, response)=>{
     console.log(request.url, request.method);
 
@@ -17,6 +20,8 @@ const requestHandler = (request, response)=>{
             fs.readFile('./views/style.css', 'utf-8')
             .then(data => response.end(data))
             .catch(error => response.end(error));
+        } else if(request.url === '/users') {
+            return response.end(JSON.stringify(userDataBase));
         } else {
             response.statusCode = 404;
             return response.end('Not found');
@@ -24,12 +29,25 @@ const requestHandler = (request, response)=>{
 
     } 
     else if(request.method === 'POST') {
-        response.end('<h1>YOU SEND A POST REQUEST</h1>'); 
+        if (request.url === '/createuser') {
+            let jsonString = '';
+            request.on('data', (chunk)=>{
+                jsonString += chunk;
+            });
+
+            request.on('end', ()=>{
+              const obj = JSON.parse(jsonString);
+              userDataBase.push({...obj,
+                    id: userDataBase.length});
+            response.statusCode = 201;
+            return response.end(JSON.stringify(obj));
+            });
+
+        }
     } else {
         response.statusCode = 403;
         response.end('<h1>YOU SEND ANOTHER REQUEST</h1>');
     }
-
 };
 const server = http.createServer(requestHandler);
 server.listen(3000, () => {
