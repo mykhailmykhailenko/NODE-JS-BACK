@@ -1,0 +1,10 @@
+ .header {
+    color: pink;
+    font-size: 2em;
+}
+
+.text {
+    background-color: bisque;
+    color: violet;
+    font-size: 0.8em;
+}
